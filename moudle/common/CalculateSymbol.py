@@ -1,7 +1,5 @@
 
 import sys
-
-sys.path.append('../')
 from typing import List
 from bean.SpecialCharactersInfo import  StrReplaceInfo
 from process.Function import HandleItem

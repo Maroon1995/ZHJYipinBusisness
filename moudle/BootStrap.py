@@ -39,7 +39,7 @@ def run(task_id: str, task_data: str):
     # ----------------------------------------------------------------------------------------------
     # TODO 2- 实例化对象
     conn_db = SQLUtil(path=db_path)
-    redisUtil = RedisHelper(redis_config["host"], redis_config["port"], redis_config["db"])
+    redisUtil = RedisHelper(redis_config["host"], redis_config["port"], redis_config["db"],redis_config["pwd"])
     input = DataIn(db_path)
     output = DataOut(db_path)
     mylog = MyLog()
@@ -58,8 +58,7 @@ def run(task_id: str, task_data: str):
     print("BUIListIsDigit: {}; BUIListNoDigit: {};query_milist:{}".format(len(BUIListIsDigit), len(BUIListNoDigit),
                                                                           len(query_milist)))
     # （3）主量数据
-    MUIListIsDigit, MUIListNoDigit = CacheValue(input=input, SRIList=SRIList, conn_db=conn_db, redisUtil=redisUtil,
-                                                expireTime=6000)
+    MUIListIsDigit, MUIListNoDigit = CacheValue(input=input, SRIList=SRIList, conn_db=conn_db, redisUtil=redisUtil)
     print("MUIListIsDigit: {}; MUIListNoDigit: {}".format(len(MUIListIsDigit), len(MUIListNoDigit)))
     # ------------------------------------------------------------------------------------------------
     # TODO 3- 计算相似度 CalculateSimlary 并输出结果 Data.DataOut ————进行了多进程优化
@@ -72,6 +71,8 @@ def run(task_id: str, task_data: str):
                 getResult(output, BUIListIsDigit, MUIListIsDigit, similarthreshold, core_process,startmp_threshold)
             if len(BUIListNoDigit) > 0:  # 非数值型
                 getResult(output, BUIListNoDigit, MUIListNoDigit, similarthreshold, core_process,startmp_threshold)
+            if len(query_milist) > 0:
+                pass
             return 1
         except Exception as e:
             mylog.error("getResult Failed:{}".format(e))

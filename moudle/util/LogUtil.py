@@ -4,8 +4,10 @@
 
 import logging
 import getpass
+from common.Configuration import readConfig
 
 # 定义MyLog类
+
 class MyLog(object):
     '''这个类用于创建一个自用的log'''
 
@@ -17,7 +19,7 @@ class MyLog(object):
         self.logger.setLevel(logging.DEBUG)  # 对显示的日志信息设置一个阈值低于DEBUG级别的不显示
 
         # logFile = './' + sys.argv[1][0:-3] + '.log'  # 日志文件名
-        logFile = 'F:\Accumulation\BaiduNetdiskWorkspace\Project\pythonworkspace\OnlyMaterialZHJSys\log\yipin.log'
+        logFile = readConfig()["path"]["log_path"]
         formatter = logging.Formatter(fmt) # 日志格式
 
         '''日志显示到屏幕上并输出到日志文件内'''
@@ -29,7 +31,6 @@ class MyLog(object):
         # 返回StreamHandler类的实例，如果stream被确定，使用该stream作为日志输出，反之，使用
         # sys.stderr
         logHandSt.setFormatter(formatter)  # 为logHandSt以formatter设置格式
-
         self.logger.addHandler(logHand)  # 添加特定的handler logHand到日志文件logger中
         self.logger.addHandler(logHandSt)  # 添加特定的handler logHandSt到日志文件logger中
 

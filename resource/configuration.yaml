@@ -11,9 +11,10 @@ tablename:
 basevariable:
   similarthreshold: 0.98  # 默认相似度阈值
   startmp_threshold: 50  # 默认开启多进程计算向量的阈值
-  core_process: 6         # 默认多进程核心数
+  core_process: 4         # 默认多进程核心数
   filterCondition: 0      # 筛选数据的条件
   limitnum: None          # 限制数据输出的条数
+  expireTime: 120000      # redis中存储数据过期时间
 
 
 # DB数据库
@@ -21,13 +22,17 @@ basevariable:
 # '192.168.192.145'  生产环境
 database:
   mssql:
-    url: "mssql+pymssql://sa:Aa123456.@192.168.192.145:1433/db_onlymaterial_businessflow?charset=utf8"
+    url: "mssql+pymssql://sa:root@1.1.4.66:1433/zhjtest01?charset=utf8"
   mysql:
     url: "mysql+pymysql://root:123456@192.168.192.146:3306/db_onlymaterial_businessflow?charset=utf8"
   redis:
     config:
-      host: "192.168.192.146"
-      port: 6380
-      db: 0    # 数据库号，默认0号
+      host: "1.1.4.46"
+      port: 6379
+      db: 2    # 数据库号，默认1号
+      pwd: 123456
   localcsv:
     url: ""
+
+path:
+  log_path: 'H:\Project\pythonworkspace\ZHJ-YIPIN-X\ZHJYipinBusisness\logs\yipin.log'

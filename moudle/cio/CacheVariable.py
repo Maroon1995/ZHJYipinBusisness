@@ -25,7 +25,7 @@ def jsonTodict(stringdict: str):
                                                dicts.get("vector"), dicts.get("status"))
 
 
-def getIsOrNoDigitList(username: str, redisUtil: RedisHelper, expireTime: int):
+def getIsOrNoDigitList(username: str, redisUtil: RedisHelper):
     """
     读取redis缓存数据，并转换成List[MaterialUniform]
     :param username: redis中的哈希表名称
@@ -33,19 +33,18 @@ def getIsOrNoDigitList(username: str, redisUtil: RedisHelper, expireTime: int):
     :return:
     """
 
-    MUIListDict = redisUtil.getall_values_hset(username, expireTime)
+    MUIListDict = redisUtil.getall_values_hset(username)
 
     return list(map(lambda x: jsonTodict(x), MUIListDict))
 
 
-def CacheValue(input: DataIn, SRIList: List[StrReplaceInfo], conn_db: SQLUtil, redisUtil: RedisHelper, expireTime: int):
+def CacheValue(input: DataIn, SRIList: List[StrReplaceInfo], conn_db: SQLUtil, redisUtil: RedisHelper):
     """
         使其以服务的形式在后台一直执行
     :param input: 实例化的输出对象DataIn
     :param SRIList: 替换字符列表
     :param conn_db: DB数据库实例对象SQLUtil
     :param redisUtil: redis工具类实例
-    :param expireTime: redis中数据有效期
     :return: MUIListIsDigit, MUIListNoDigit
     """
     MUIListIsDigit: List = []
@@ -54,14 +53,13 @@ def CacheValue(input: DataIn, SRIList: List[StrReplaceInfo], conn_db: SQLUtil, r
 
     flag: int = conn_db.mainKeyExists(MaterialUniform,
                                       MaterialUniform.status == 1)  # 查询MaterialUniform表中是否存在status为1的数据，若存在则更缓存redis
-    if flag == 0 and redisUtil.is_existsKey("MUIListIsDigit", expireTime) == True and redisUtil.is_existsKey(
-            "MUIListNoDigit", expireTime) == True:  # 如果，两个username如果均存在且flag=0，则从redis中获取
+    if flag == 0 and redisUtil.is_existsKey("MUIListIsDigit") == True and redisUtil.is_existsKey("MUIListNoDigit") == True:  # 如果，两个username如果均存在且flag=0，则从redis中获取
         print("从redis中获取")
-        MUIListIsDigit = getIsOrNoDigitList("MUIListIsDigit", redisUtil, expireTime)
-        MUIListNoDigit = getIsOrNoDigitList("MUIListNoDigit", redisUtil, expireTime)
+        MUIListIsDigit = getIsOrNoDigitList("MUIListIsDigit", redisUtil)
+        MUIListNoDigit = getIsOrNoDigitList("MUIListNoDigit", redisUtil)
 
-    elif flag == 1 and redisUtil.is_existsKey("MUIListIsDigit", expireTime) == True and redisUtil.is_existsKey(
-            "MUIListNoDigit", expireTime) == True:  # 如果，两个username均存在, 且flag=1，则更新redis中对应的值，然后再获取数据
+    elif flag == 1 and redisUtil.is_existsKey("MUIListIsDigit") == True and redisUtil.is_existsKey(
+            "MUIListNoDigit") == True:  # 如果，两个username均存在, 且flag=1，则更新redis中对应的值，然后再获取数据
         # 从DB中获取MaterialUniform中status == 1的所有数据
         MUIListStatus: List[MaterialUniform] = input.mysqlFileData(MaterialUniform,
                                                                        filterCondition=MaterialUniform.status == 1)
@@ -77,20 +75,18 @@ def CacheValue(input: DataIn, SRIList: List[StrReplaceInfo], conn_db: SQLUtil, r
                                                dicts.get("Unit"),dicts.get("FirstClass"),
                                                dicts.get("vector"), dicts.get("status"))) # 将更后的数据添加到等待同步到DB数据库的列表中
 
-            if redisUtil.isExists_hset("MUIListIsDigit", eleMUIStatus.MaterialDrawing,
-                                       expireTime) == 1:  # 如果存在,则先删除该key-value，再添加key_newvalue
-                redisUtil.del_hset("MUIListIsDigit", eleMUIStatus.MaterialDrawing, expireTime)
-                redisUtil.add_hset("MUIListIsDigit", eleMUIStatus.MaterialDrawing, new_data, expireTime)
+            if redisUtil.isExists_hset("MUIListIsDigit", eleMUIStatus.MaterialDrawing,) == 1:  # 如果存在,则先删除该key-value，再添加key_newvalue
+                redisUtil.del_hset("MUIListIsDigit", eleMUIStatus.MaterialDrawing)
+                redisUtil.add_hset("MUIListIsDigit", eleMUIStatus.MaterialDrawing, new_data)
 
-            elif redisUtil.isExists_hset("MUIListNoDigit", eleMUIStatus.MaterialDrawing,
-                                         expireTime) == 1:  # 如果存在,则先删除该key-value，再添加key_newvalue
-                redisUtil.del_hset("MUIListNoDigit", eleMUIStatus.MaterialDrawing, expireTime)
-                redisUtil.add_hset("MUIListNoDigit", eleMUIStatus.MaterialDrawing, new_data, expireTime)
+            elif redisUtil.isExists_hset("MUIListNoDigit", eleMUIStatus.MaterialDrawing,) == 1:  # 如果存在,则先删除该key-value，再添加key_newvalue
+                redisUtil.del_hset("MUIListNoDigit", eleMUIStatus.MaterialDrawing)
+                redisUtil.add_hset("MUIListNoDigit", eleMUIStatus.MaterialDrawing, new_data)
             else:
                 if eleMUIStatus.uniformitem.isdigit():  # 以上两种情况都不存在，则直接判断是否为数值型字符串，然后添加
-                    redisUtil.add_hset("MUIListIsDigit", eleMUIStatus.MaterialDrawing, new_data, expireTime)
+                    redisUtil.add_hset("MUIListIsDigit", eleMUIStatus.MaterialDrawing, new_data)
                 else:
-                    redisUtil.add_hset("MUIListNoDigit", eleMUIStatus.MaterialDrawing, new_data, expireTime)
+                    redisUtil.add_hset("MUIListNoDigit", eleMUIStatus.MaterialDrawing, new_data)
 
     else:  # 否则，从DB数据库中获取,并重新更新redis中的全部数据
         # 从数据库中获取数据
@@ -121,10 +117,10 @@ def CacheValue(input: DataIn, SRIList: List[StrReplaceInfo], conn_db: SQLUtil, r
             new_data = json.dumps(dict(eleMUI))
             if eleMUI.uniformitem.isdigit():  # 过滤，分类出数值字符串和非数值字符串
                 MUIListIsDigit.append(eleMUI)  # 添加到列表
-                redisUtil.add_hset("MUIListIsDigit", eleMUI.MaterialDrawing, new_data, expireTime)  # 添加到缓存哈希表“MUIListIsDigit”中
+                redisUtil.add_hset("MUIListIsDigit", eleMUI.MaterialDrawing, new_data)  # 添加到缓存哈希表“MUIListIsDigit”中
             else:
                 MUIListNoDigit.append(eleMUI)
-                redisUtil.add_hset("MUIListNoDigit", eleMUI.MaterialDrawing, new_data, expireTime)
+                redisUtil.add_hset("MUIListNoDigit", eleMUI.MaterialDrawing, new_data)
 
     if newList: # 如果存在新增则同时更新DB数据库
         conn_db.upsertBatchRow(newList)
