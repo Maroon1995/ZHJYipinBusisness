@@ -12,7 +12,8 @@ class MaterialInfo(Base):
     '''
     __tablename__ = readConfig()["tablename"]["MaterialInfo"]  # 数据表的名字
     __table_args__ = {'extend_existing': True}  # 当数据库中已经有该表时，或内存中已声明该表，可以用此语句重新覆盖声明。
-    oid = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    oid = Column(Integer, unique=True)
     Code = Column(String(255), unique=True) # 物料编码
     MaterialDrawing = Column(String(128), unique=True) # 物料标准图号
     EnglishName = Column(String(255), unique=True) # 标准英文名称
@@ -21,12 +22,13 @@ class MaterialInfo(Base):
     FirstClass = Column(String(255), unique=True) # 一级分类
 
     def keys(self):
-        return ["Code", "MaterialDrawing", "Name", "EnglishName", "Unit", "FirstClass"]
+        return ["oid","Code", "MaterialDrawing", "Name", "EnglishName", "Unit", "FirstClass"]
 
     def __getitem__(self, item):
         return self.__getattribute__(item)
 
-    def __init__(self, Code, MaterialDrawing, EnglishName, Name, Unit, FirstClass):
+    def __init__(self, oid, Code, MaterialDrawing, EnglishName, Name, Unit, FirstClass):
+        self.oid = oid
         self.Code = Code
         self.MaterialDrawing = MaterialDrawing
         self.EnglishName = EnglishName  # 声明需要调用的特征，可以只声明数据库中表格列的子集

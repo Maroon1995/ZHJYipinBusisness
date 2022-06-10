@@ -1,8 +1,6 @@
 import sys
-
 sys.path.append('../')
 
-from time import time
 from cio.CacheVariable import CacheValue
 from process.Produce import getDatafromHTTP
 from process.Consumer import getResult
@@ -12,16 +10,19 @@ from util.LogUtil import MyLog
 from bean.SpecialCharactersInfo import StrReplaceInfo
 from common.DataInOut import DataIn, DataOut
 from common.Configuration import readConfig
+from common.ResumeTime import get_time
 from sqlalchemy import exists, and_, or_
 
 
+@get_time
 def run(task_id: str, task_data: str):
     """
     :param task_id: 任务id
     :param task_data: 接收到的任务数据
     :return:
     """
-    # ------------------------------------------------------------------------------------------------
+    mylog = MyLog()
+    mylog.info("------------进入了BootStrap.run函数-----------")
     # TODO 0- 配置文件
     cfg = readConfig()
     base_config = cfg["basevariable"]
@@ -31,18 +32,16 @@ def run(task_id: str, task_data: str):
     similarthreshold: float = base_config["similarthreshold"]
     startmp_threshold: int = base_config["startmp_threshold"]
     core_process: int = base_config["core_process"]
-
     # db_path = cfg["database"]["mysql"]["url"]                 # mysql 数据库的url
     db_path = mssql_config["url"]                               # mssql 数据库的url
     un_task_data = task_data.encode("UTF-8").decode("UTF-8")    # 请求到的任务数据
-
     # ----------------------------------------------------------------------------------------------
     # TODO 2- 实例化对象
     conn_db = SQLUtil(path=db_path)
     redisUtil = RedisHelper(redis_config["host"], redis_config["port"], redis_config["db"],redis_config["pwd"])
     input = DataIn(db_path)
     output = DataOut(db_path)
-    mylog = MyLog()
+    mylog.info("---------完成了参数配置和实例化---------")
     # ------------------------------------------------------------------------------------------------
     # TODO 3- 获取数据 getData（包含了数据处理）————进行了缓存优化
     # （1）替换字符
@@ -54,12 +53,9 @@ def run(task_id: str, task_data: str):
                                                                    SRIList=SRIList,
                                                                    startmp_threshold=startmp_threshold,
                                                                    core_process=core_process)
-
-    print("BUIListIsDigit: {}; BUIListNoDigit: {};query_milist:{}".format(len(BUIListIsDigit), len(BUIListNoDigit),
+    mylog.info("完成了请求数据获取：")
+    mylog.info("BUIListIsDigit: {}; BUIListNoDigit: {};query_milist:{}".format(len(BUIListIsDigit), len(BUIListNoDigit),
                                                                           len(query_milist)))
-    # （3）主量数据
-    MUIListIsDigit, MUIListNoDigit = CacheValue(input=input, SRIList=SRIList, conn_db=conn_db, redisUtil=redisUtil)
-    print("MUIListIsDigit: {}; MUIListNoDigit: {}".format(len(MUIListIsDigit), len(MUIListNoDigit)))
     # ------------------------------------------------------------------------------------------------
     # TODO 3- 计算相似度 CalculateSimlary 并输出结果 Data.DataOut ————进行了多进程优化
     if (len(BUIListIsDigit) == 0 and len(BUIListNoDigit) == 0 and len(query_milist) == 0):
@@ -67,10 +63,17 @@ def run(task_id: str, task_data: str):
         return 0
     else:
         try:
-            if len(BUIListIsDigit) > 0:  # 数值型
-                getResult(output, BUIListIsDigit, MUIListIsDigit, similarthreshold, core_process,startmp_threshold)
-            if len(BUIListNoDigit) > 0:  # 非数值型
-                getResult(output, BUIListNoDigit, MUIListNoDigit, similarthreshold, core_process,startmp_threshold)
+            if len(BUIListIsDigit) > 0 or len(BUIListNoDigit) > 0:
+                # （3）主量数据
+                MUIListIsDigit, MUIListNoDigit = CacheValue(input=input, SRIList=SRIList, conn_db=conn_db,
+                                                            redisUtil=redisUtil)
+                mylog.info("完成了主数据向量获取：")
+                mylog.info("MUIListIsDigit: {}; MUIListNoDigit: {}".format(len(MUIListIsDigit), len(MUIListNoDigit)))
+                if len(BUIListIsDigit) > 0:  # 数值型
+                    getResult(output, BUIListIsDigit, MUIListIsDigit, similarthreshold, core_process,startmp_threshold)
+                if len(BUIListNoDigit) > 0:  # 非数值型
+                    getResult(output, BUIListNoDigit, MUIListNoDigit, similarthreshold, core_process,startmp_threshold)
+
             if len(query_milist) > 0:
                 pass
             return 1
@@ -85,8 +88,4 @@ if __name__ == '__main__':
     # 任务data
     task_data = """{"data":[{"MaterialDrawing": "ZWY-2", "Name": "保险丝3", "EnglishName": "ПРОВОЛОКА3", "Unit": "Meter3"},{"MaterialDrawing": "ZXR-11C", "Name": "保险丝8", "EnglishName": "ПРОВОЛОКА8", "Unit": "Meter8"},{"MaterialDrawing": "CCCCCCC", "Name": "保险丝3", "EnglishName": "ПРОВОЛОКА3", "Unit": "Meter3"},{"MaterialDrawing": "234356", "Name": "保险丝3", "EnglishName": "ПРОВОЛОКА3", "Unit": "Meter3"}]}"""
 
-    start_time2 = time()
     res = run(task_id, task_data)
-    end_time2 = time()
-
-    print('存储耗时(ms)：', (end_time2 - start_time2) * 1000)

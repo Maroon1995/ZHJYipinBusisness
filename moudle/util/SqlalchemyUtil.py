@@ -1,11 +1,8 @@
-import sys
 
-sys.path.append('../')
 from typing import List
 from util.LogUtil import MyLog
 from sqlalchemy import create_engine  # 引擎
 from sqlalchemy.orm import sessionmaker  # 创建orm的会话池，orm和sql均可以管理对象关系型数据库，需要绑定引擎才可以使用会话，
-from bean.BatchMaterialInfo import BatchInfo
 
 
 class SQLUtil(object):

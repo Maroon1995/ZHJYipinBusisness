@@ -1,6 +1,4 @@
-import sys
 
-sys.path.append('../')
 from typing import List
 from common.DataCleaning import UniformMaterial
 from common.DataInOut import DataIn, DataOut

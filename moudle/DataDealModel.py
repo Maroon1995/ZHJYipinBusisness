@@ -1,20 +1,22 @@
 import sys
 
 sys.path.append('../')
-from time import time
 from util.LogUtil import MyLog
+from common.ResumeTime import get_time
+from common.Configuration import readConfig
 from common.DataInOut import DataIn, DataOut
 from common.DataCleaning import UniformMaterial
-from common.Configuration import readConfig
 from bean.MainMaterialInfo import MaterialInfo
 from bean.SpecialCharactersInfo import StrReplaceInfo
 
-
+@get_time
 def run():
     """
     清洗主数据以及向量化
     :return: 返回1，表示数据处理成功，且已存入数据库
     """
+    mylog = MyLog()
+    mylog.info("------------进入了DataDealModel.run函数-----------")
     # TODO 0- 配置文件
     cfg = readConfig()
     base_config = cfg["basevariable"]
@@ -30,7 +32,6 @@ def run():
     # TODO 2- 实例化对象
     input = DataIn(db_path)     # 输入
     output = DataOut(db_path)   # 输出
-    mylog = MyLog()             # 日志
 
     # TODO 3- 获取数据 Data.DataIn
     SRIList = input.mysqlFileData(StrReplaceInfo)
@@ -44,17 +45,12 @@ def run():
     try:
         output.sqlFileOut(MUIList)  # 直接输出到mysql数据库
         print("主数据向量化并存储成功！！！")
+        mylog.info("主数据向量化并存储成功！！")
         return 1
     except Exception as e:
         mylog.error("主数据向量化后存储失败！！ —— {}".format(e))
         return 0
 
-
 if __name__ == '__main__':
 
-    start_time2 = time()
     run()
-    end_time2 = time()
-
-    print("===" * 10)
-    print('存储耗时(ms)：', (end_time2 - start_time2) * 1000)

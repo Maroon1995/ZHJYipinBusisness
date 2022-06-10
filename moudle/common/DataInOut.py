@@ -1,7 +1,6 @@
-import csv
-import sys
 
-sys.path.append('../')
+import csv
+
 from util.LogUtil import MyLog
 from util.SqlalchemyUtil import SQLUtil
 from typing import List

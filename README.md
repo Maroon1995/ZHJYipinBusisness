@@ -17,7 +17,7 @@ python3.8.3 + redis3.0.4 + mssql-server-2017 + centos7.6
     
 # 三、项目目录
 - OnlyMaterialZHJSys
-    - log
+    - logs
     - resource
     - moudle
         - bean
@@ -30,9 +30,11 @@ python3.8.3 + redis3.0.4 + mssql-server-2017 + centos7.6
         
 # 四、项目概况
 1、OnlyMaterialZHJSys主要实现两个内容：
+
 （1）数据清洗
 （2）相似度计算
 2、OnlyMaterialZHJSys存在两个主要入口类：
+
 （1）DataDealModel
     主要作用：将主数据“ MainMaterialInfo ”转换成统一编码和向量表数据“ MainMaterialUniformVector ” ；只执行一次，对主数据进行初始化。
 （2）BootStrap
@@ -40,8 +42,9 @@ python3.8.3 + redis3.0.4 + mssql-server-2017 + centos7.6
     计算相似度，并返回相似结果。
 3、参数
 3.1 BootStrap.run(task_id: str, task_data: str)
+
 (1) 默认参数
-    
+
     similarthreshold: float = 0.98                 # 相似度阈值
     startmp_threshold: int = 100                   # 开启多进程计算向量的阈值
     core_process: int = 6                          # 多进程核心数
@@ -59,6 +62,7 @@ python3.8.3 + redis3.0.4 + mssql-server-2017 + centos7.6
     }
     """                                            # 前端传过来的数据"data"——jsonString
 3.2 DataDealModel.run()
+
 （1）默认参数
     
     db_path = "mysql+pymysql://root:123456@192.168.192.137:3306/db_onlymaterial_businessflow"
@@ -69,6 +73,7 @@ python3.8.3 + redis3.0.4 + mssql-server-2017 + centos7.6
     
 4、数据来源
 数据源可分为三种情况：本地csv数据getDatafromLocal、数据库数据getDatafromDB、http请求来的jsonstring数据 getDatafromHTTP
+ 
  (1) 本地csv数据 - getDatafromLocal
     
     # 从本地csv文件中获取数据需要加上下边两个参数
@@ -101,11 +106,13 @@ python3.8.3 + redis3.0.4 + mssql-server-2017 + centos7.6
 # 五、注意事项
 1、BatchSimilarCalculate()
 在计算相似度的时，计算结果分为两种情况：
+
 （1）找到相同或者相似的物料：`MatchLogo`: `0`表示没用匹配到，`1`表示匹配到了(包含匹配到的相同和相似的字符串)
 
 （2）没有匹配到相同或相似数据，属于完全新增：相似度`similary=1.01`,表示只有自己,主数据中没有找相同或相似物料。编码Code、一级分类FirstClass、匹配状态MatchLogo分别赋值None,None,0；
 
 2、需要修改的地方
+
 （1）moudle.commom.Configuration.py
 
 修改`configuration.yaml`配置文件的默认绝对路径yaml_file，将其修改为自己的绝对路径。
@@ -113,11 +120,8 @@ python3.8.3 + redis3.0.4 + mssql-server-2017 + centos7.6
 （2）在配置文件resource.configuration.yaml中
 
 将mssql数据库修改成自己的`url`: database.mssql.url
-将redis数据库修改为自己的`host`,`port`,`db`
-
-（3）util.LogUtil.py
-
-修改属性值 logFile：日志文件的存储的绝对路径——修改成自己的。
+将redis数据库修改为自己的`host`,`port`,`db`,`pwd`
+将mylog日志路径修改为自己的本地路径 `path.log_path`
 
 3、在所有BootStrap任务执行前，一定要有对主数据进行一次数据清洗和向量化DataDealModel，将其结果存入数据库表`material_uniform_vector`中供BootStrap任务调用
     因为所有的BootStrap任务都是基于DataDealModel它的计算结果来执行的。

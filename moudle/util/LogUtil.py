@@ -1,6 +1,3 @@
-# 重点内容
-# !/usr/bin/env python
-# encoding=utf-8
 
 import logging
 import getpass
@@ -16,10 +13,9 @@ class MyLog(object):
         fmt = '%(asctime)-12s %(levelname)-8s %(name)-10s %(message)-12s'
 
         self.logger = logging.getLogger(user)  # 返回一个特定名字的日志
-        self.logger.setLevel(logging.DEBUG)  # 对显示的日志信息设置一个阈值低于DEBUG级别的不显示
+        self.logger.setLevel(logging.ERROR)  # 对显示的日志信息设置一个阈值低于DEBUG级别的不显示
 
-        # logFile = './' + sys.argv[1][0:-3] + '.log'  # 日志文件名
-        logFile = readConfig()["path"]["log_path"]
+        logFile = readConfig()["path"]["log_path"]  # 日志文件路径
         formatter = logging.Formatter(fmt) # 日志格式
 
         '''日志显示到屏幕上并输出到日志文件内'''

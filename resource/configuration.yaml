@@ -34,5 +34,5 @@ database:
   localcsv:
     url: ""
 
-path:
-  log_path: 'H:\Project\pythonworkspace\ZHJ-YIPIN-X\ZHJYipinBusisness\logs\yipin.log'
+path: #本地路径
+  log_path: 'H:\Project\pythonworkspace\ZHJ-YIPIN-X\ZHJYipinBusisness\logs\yipin.log' #日志路径

@@ -1,4 +1,3 @@
-
 import json
 
 from typing import List
@@ -19,11 +18,10 @@ def jsonTodict(stringdict: str):
     """
     dicts = json.loads(stringdict)
     # 重新封装
-    return MaterialUniform(dicts.get("Code"), dicts.get("MaterialDrawing"), dicts.get("uniformitem"),
-                                               dicts.get("EnglishName"), dicts.get("Name"),
-                                               dicts.get("Unit"),dicts.get("FirstClass"),
-                                               dicts.get("vector"), dicts.get("status"))
-
+    return MaterialUniform(dicts.get("oid"), dicts.get("Code"), dicts.get("MaterialDrawing"),
+                           dicts.get("uniformitem"), dicts.get("EnglishName"), dicts.get("Name"),
+                           dicts.get("Unit"), dicts.get("FirstClass"),
+                           dicts.get("vector"), dicts.get("status"))
 
 def getIsOrNoDigitList(username: str, redisUtil: RedisHelper):
     """
@@ -53,7 +51,8 @@ def CacheValue(input: DataIn, SRIList: List[StrReplaceInfo], conn_db: SQLUtil, r
 
     flag: int = conn_db.mainKeyExists(MaterialUniform,
                                       MaterialUniform.status == 1)  # 查询MaterialUniform表中是否存在status为1的数据，若存在则更缓存redis
-    if flag == 0 and redisUtil.is_existsKey("MUIListIsDigit") == True and redisUtil.is_existsKey("MUIListNoDigit") == True:  # 如果，两个username如果均存在且flag=0，则从redis中获取
+    if flag == 0 and redisUtil.is_existsKey("MUIListIsDigit") == True and redisUtil.is_existsKey(
+            "MUIListNoDigit") == True:  # 如果，两个username如果均存在且flag=0，则从redis中获取
         print("从redis中获取")
         MUIListIsDigit = getIsOrNoDigitList("MUIListIsDigit", redisUtil)
         MUIListNoDigit = getIsOrNoDigitList("MUIListNoDigit", redisUtil)
@@ -62,24 +61,26 @@ def CacheValue(input: DataIn, SRIList: List[StrReplaceInfo], conn_db: SQLUtil, r
             "MUIListNoDigit") == True:  # 如果，两个username均存在, 且flag=1，则更新redis中对应的值，然后再获取数据
         # 从DB中获取MaterialUniform中status == 1的所有数据
         MUIListStatus: List[MaterialUniform] = input.mysqlFileData(MaterialUniform,
-                                                                       filterCondition=MaterialUniform.status == 1)
-        for i in range(len(MUIListStatus)): # 更新数据
+                                                                   filterCondition=MaterialUniform.status == 1)
+        for i in range(len(MUIListStatus)):  # 更新数据
             eleMUIStatus = MUIListStatus[i]
             eleMUIStatus.vector = getVectorString(eleMUIStatus.MaterialDrawing)  # 更新向量
             eleMUIStatus.uniformitem = getNoSymbol(eleMUIStatus, SRIList)  # 更新uniformitem
             eleMUIStatus.status = 0  # 将状态更新成0，表示已经成为历史物料
             new_data = json.dumps(dict(eleMUIStatus))
             dicts = dict(eleMUIStatus)
-            newList.append(MaterialUniform(dicts.get("Code"), dicts.get("MaterialDrawing"), dicts.get("uniformitem"),
-                                               dicts.get("EnglishName"), dicts.get("Name"),
-                                               dicts.get("Unit"),dicts.get("FirstClass"),
-                                               dicts.get("vector"), dicts.get("status"))) # 将更后的数据添加到等待同步到DB数据库的列表中
+            newList.append(MaterialUniform(dicts.get("oid"),dicts.get("Code"), dicts.get("MaterialDrawing"), dicts.get("uniformitem"),
+                                           dicts.get("EnglishName"), dicts.get("Name"),
+                                           dicts.get("Unit"), dicts.get("FirstClass"),
+                                           dicts.get("vector"), dicts.get("status")))  # 将更后的数据添加到等待同步到DB数据库的列表中
 
-            if redisUtil.isExists_hset("MUIListIsDigit", eleMUIStatus.MaterialDrawing,) == 1:  # 如果存在,则先删除该key-value，再添加key_newvalue
+            if redisUtil.isExists_hset("MUIListIsDigit",
+                                       eleMUIStatus.MaterialDrawing, ) == 1:  # 如果存在,则先删除该key-value，再添加key_newvalue
                 redisUtil.del_hset("MUIListIsDigit", eleMUIStatus.MaterialDrawing)
                 redisUtil.add_hset("MUIListIsDigit", eleMUIStatus.MaterialDrawing, new_data)
 
-            elif redisUtil.isExists_hset("MUIListNoDigit", eleMUIStatus.MaterialDrawing,) == 1:  # 如果存在,则先删除该key-value，再添加key_newvalue
+            elif redisUtil.isExists_hset("MUIListNoDigit",
+                                         eleMUIStatus.MaterialDrawing, ) == 1:  # 如果存在,则先删除该key-value，再添加key_newvalue
                 redisUtil.del_hset("MUIListNoDigit", eleMUIStatus.MaterialDrawing)
                 redisUtil.add_hset("MUIListNoDigit", eleMUIStatus.MaterialDrawing, new_data)
             else:
@@ -107,7 +108,8 @@ def CacheValue(input: DataIn, SRIList: List[StrReplaceInfo], conn_db: SQLUtil, r
                 eleMUI.status = 0  # 更改状态为3，防止下次读取的时候，进行多余的向量更新操作
                 dicts = dict(eleMUI)
                 print(dicts)
-                newList.append(MaterialUniform(dicts.get("Code"), dicts.get("MaterialDrawing"), dicts.get("uniformitem"),
+                newList.append(
+                    MaterialUniform(dicts.get("oid"),dicts.get("Code"), dicts.get("MaterialDrawing"), dicts.get("uniformitem"),
                                     dicts.get("EnglishName"), dicts.get("Name"),
                                     dicts.get("Unit"), dicts.get("FirstClass"),
                                     dicts.get("vector"), dicts.get("status")))  # 将更后的数据添加到等待同步到DB数据库的列表中
@@ -122,7 +124,7 @@ def CacheValue(input: DataIn, SRIList: List[StrReplaceInfo], conn_db: SQLUtil, r
                 MUIListNoDigit.append(eleMUI)
                 redisUtil.add_hset("MUIListNoDigit", eleMUI.MaterialDrawing, new_data)
 
-    if newList: # 如果存在新增则同时更新DB数据库
+    if newList:  # 如果存在新增则同时更新DB数据库
         conn_db.upsertBatchRow(newList)
 
     return MUIListIsDigit, MUIListNoDigit

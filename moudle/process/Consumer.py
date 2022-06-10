@@ -1,7 +1,5 @@
-import sys
-import os
 
-sys.path.append('../')
+import os
 from common.DataInOut import DataOut
 from common.CalculateSimlary import similar
 from util.LogUtil import MyLog
@@ -13,7 +11,6 @@ from bean.MainMaterialUniformVectorInfo import MaterialUniform
 
 mylog = MyLog()
 
-
 def BatchSimilarCalculate(BUIL: BatchMaterialUniform, MUIList: List, similarthreshold: float):
     """
     计算相似度，存储结果
@@ -22,13 +19,13 @@ def BatchSimilarCalculate(BUIL: BatchMaterialUniform, MUIList: List, similarthre
     :param similarthreshold: 相似度阈值
     :return:
     """
-    print('<进程%s> get  %s' % (os.getpid(), BUIL.MaterialDrawing))
+    # print('<进程%s> get  %s' % (os.getpid(), BUIL.MaterialDrawing))
     # map(lambda x:similar(elemBUI,x), MUIList)
     resList: List = [similar(BUIL, MUIList[j], similarthreshold) for j in range(len(MUIList))]
     result = list(set(resList))
     result.remove(0)
     if len(result) == 0:  # 如果在相似度阈值内没有找到相似物料，则相似度用1.01表示只有自己,主数据中没有找到相似物料，最后一级分类和匹配状态分别显示为"NoClass",0；否则，将找到相似或相同物料输出到结果当中。
-        result.append(MateialBatchResult(BUIL.task_id,BUIL.MaterialDrawing,BUIL.MaterialDrawing,1.01,
+        result.append(MateialBatchResult(BUIL.task_id,BUIL.MaterialDrawing,BUIL.MaterialDrawing,None,1.01,
                                          BUIL.Name,BUIL.EnglishName,BUIL.Unit,None,None,0))
     return result
 
@@ -41,7 +38,7 @@ def OutDB(result, output: DataOut):
     :param mainkeyCondition: 字段过滤条件，在输入数据时，哪些字段条件满足时，不需要插入满足条件的数据
     :return:返回结果为1表示输出成功，否则输出失败
     """
-    print('<进程%s> parse %s' % (os.getpid(), result[0].MaterialDrawing))
+    # print('<进程%s> parse %s' % (os.getpid(), result[0].MaterialDrawing))
     try:
         output.sqlFileOut(result)
         return 1
@@ -92,7 +89,7 @@ def getResult(output: DataOut, BUILists: List[BatchMaterialUniform], MUILists: L
                 raise Exception("数据在存储过程中存在丢失，需要重新生成新的订单，然后提交计算！")
             elif res_out_set[0] == 1 and len(res_out_set) == 1:
 
-                print("===" * 5 + "Sucessfully!" + "===" * 5)
+                mylog.info("===" * 5 + "Sucessfully!" + "===" * 5)
             else:
                 raise Exception("===" * 5 + "Failed!" + "===" * 5)
 
@@ -114,6 +111,7 @@ def getResult(output: DataOut, BUILists: List[BatchMaterialUniform], MUILists: L
             elif res_out_set[0] == 1 and len(res_out_set) == 1:
 
                 print("===" * 5 + "Sucessfully!" + "===" * 5)
+                mylog.info("===" * 5 + "Sucessfully!" + "===" * 5)
             else:
                 raise Exception("===" * 5 + "Failed!" + "===" * 5)
 

@@ -1,7 +1,4 @@
 
-import sys
-
-sys.path.append('../')
 from typing import List
 from multiprocessing import Pool
 from common.CalculateVector import getVectorString
@@ -33,7 +30,7 @@ def StrUniform(byUniformDataInfo, elemList: List[StrReplaceInfo]):
                              byUniformDataInfo.EnglishName,byUniformDataInfo.Name,byUniformDataInfo.Unit,newstr7)
 
     elif isinstance(byUniformDataInfo, MaterialInfo)==True:
-        return MaterialUniform(byUniformDataInfo.Code,byUniformDataInfo.MaterialDrawing,newstr6,
+        return MaterialUniform(byUniformDataInfo.oid,byUniformDataInfo.Code,byUniformDataInfo.MaterialDrawing,newstr6,
                         byUniformDataInfo.EnglishName,byUniformDataInfo.Name,byUniformDataInfo.Unit,byUniformDataInfo.FirstClass,
                         newstr7,0)# 状态为0表示已有主数据
 

@@ -1,3 +1,4 @@
+
 from numpy import dot
 from numpy.linalg import norm
 from typing import List
@@ -23,7 +24,7 @@ def cosinesimilarityNp(vecInt1: List[int], vecInt2: List[int]):
     return res
 
 
-def similar(elemBUI:BatchMaterialUniform, elemMUI:MaterialUniform, similarthreshold: float):
+def similar(elemBUI: BatchMaterialUniform, elemMUI: MaterialUniform, similarthreshold: float):
     """
     计算两个物料的相似度
     :param elemBUI: 物料数据信息（BatchUniformInfo）
@@ -37,8 +38,8 @@ def similar(elemBUI:BatchMaterialUniform, elemMUI:MaterialUniform, similarthresh
     sim = cosinesimilarityNp(vecInt1, vecInt2)
 
     if sim >= similarthreshold:
-        return MateialBatchResult(elemBUI.task_id, elemBUI.MaterialDrawing, elemMUI.MaterialDrawing,
+        return MateialBatchResult(elemBUI.task_id, elemBUI.MaterialDrawing, elemMUI.MaterialDrawing, elemMUI.oid,
                                   sim, elemMUI.Name, elemMUI.EnglishName,
-                                  elemMUI.Unit,elemMUI.Code,elemMUI.FirstClass,1)
+                                  elemMUI.Unit, elemMUI.Code, elemMUI.FirstClass, 1)
     else:
         return 0

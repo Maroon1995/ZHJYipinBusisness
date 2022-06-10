@@ -1,16 +1,13 @@
-import sys
+
 import json
-
-sys.path.append('../')
-
 from typing import List, Dict
 from common.DataInOut import DataIn, DataOut
 from process.Uniform import StrUniform, multProcessUniform
 from util.LogUtil import MyLog
 from bean.BatchMaterialInfo import BatchInfo
 from bean.MainMaterialInfo import MaterialInfo
-from bean.SpecialCharactersInfo import StrReplaceInfo
 from bean.MaterialBatchResultInfo import MateialBatchResult
+from bean.SpecialCharactersInfo import StrReplaceInfo
 
 
 class UniformMaterial(object):
@@ -45,18 +42,18 @@ class UniformMaterial(object):
         for i in range(count):
             elemMI: BatchInfo = MIList[i]
             # 在主数据中查询当前数据是否存在，如果存在返回查询到的数据，并封装成MateialBatchResult返回。
-            queryRes = self.input.mysqlFileData(MaterialInfo,
-                                                filterCondition=MaterialInfo.MaterialDrawing == elemMI.MaterialDrawing)
+            queryRes: List[MaterialInfo] = self.input.mysqlFileData(MaterialInfo,
+                                                                    filterCondition=MaterialInfo.MaterialDrawing == elemMI.MaterialDrawing)
             if len(queryRes) > 0:
                 for eleQR in queryRes:
-                    mbr = MateialBatchResult(elemMI.task_id, elemMI.MaterialDrawing, eleQR.MaterialDrawing, 1,
-                                             eleQR.Name, eleQR.EnglishName, eleQR.Unit, eleQR.Code, eleQR.FirstClass, 1)
+                    mbr = MateialBatchResult(elemMI.task_id, elemMI.MaterialDrawing, eleQR.MaterialDrawing, eleQR.oid,
+                                             1, eleQR.Name, eleQR.EnglishName, eleQR.Unit, eleQR.Code, eleQR.FirstClass, 1)
                     query_milist.append(mbr)
 
             else:
                 caculate_simlar_milist.append(elemMI)
 
-        if len(query_milist)>0: # 如果主数据中存在，则将重新封装的MateialBatchResult数据直接存储到DB中
+        if len(query_milist) > 0:  # 如果主数据中存在，则将重新封装的MateialBatchResult数据直接存储到DB中
             self.output.sqlFileOut(query_milist)  # 直接输出到数据库的结果表中
 
         return caculate_simlar_milist, query_milist
@@ -136,7 +133,7 @@ class UniformMaterial(object):
         else:
             raise Exception("从DB数据库中获取的输入数据集合为空，请重新获取！！！")
 
-    def UniformMaterialCodeLocalbase(self, local_path:str, byUniformDataInfo):
+    def UniformMaterialCodeLocalbase(self, local_path: str, byUniformDataInfo):
 
         """
         本地数据csv、将数据中多样性的元素进行统一
@@ -145,7 +142,7 @@ class UniformMaterial(object):
         :return: 返回一个统一后的列表实例化对象:例如 List[MaterialUniform]
         """
         # 统一字符串：获取数据
-        MIList = self.input.localFileData(local_path,tablename=byUniformDataInfo)
+        MIList = self.input.localFileData(local_path, tablename=byUniformDataInfo)
         if len(MIList) > 0:
             if self.limitnum != None:
                 import random
