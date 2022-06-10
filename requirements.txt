@@ -1,0 +1,11 @@
+certifi==2022.5.18.1
+chardet==4.0.0
+charset-normalizer==2.0.12
+greenlet==1.1.2
+idna==3.3
+numpy==1.21.6
+pymssql==2.2.5
+PyYAML==6.0
+redis==2.10.6
+SQLAlchemy==1.4.36
+urllib3==1.26.9
