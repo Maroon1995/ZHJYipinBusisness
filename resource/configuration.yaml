@@ -1,0 +1,33 @@
+# 表名称
+tablename:
+  BatchInfo: "batchinfo"                                      # 批上传数据表
+  BatchMaterialUniform: "batch_material_uniform_vector"       # 批数据向量表
+  MaterialInfo: "ProductData"                                 # 主数据表
+  MaterialUniform: "material_uniform_vector"                  # 主数据向量表
+  MateialBatchResult: "material_batch_result"                 # 结果存储表
+  StrReplaceInfo: "SpecialCharacters"                         # 字符替换表
+
+# 基础变量
+basevariable:
+  similarthreshold: 0.98  # 默认相似度阈值
+  startmp_threshold: 50  # 默认开启多进程计算向量的阈值
+  core_process: 6         # 默认多进程核心数
+  filterCondition: 0      # 筛选数据的条件
+  limitnum: None          # 限制数据输出的条数
+
+
+# DB数据库
+# '192.168.192.137'  测试环境
+# '192.168.192.145'  生产环境
+database:
+  mssql:
+    url: "mssql+pymssql://sa:Aa123456.@192.168.192.145:1433/db_onlymaterial_businessflow?charset=utf8"
+  mysql:
+    url: "mysql+pymysql://root:123456@192.168.192.146:3306/db_onlymaterial_businessflow?charset=utf8"
+  redis:
+    config:
+      host: "192.168.192.146"
+      port: 6380
+      db: 0    # 数据库号，默认0号
+  localcsv:
+    url: ""
