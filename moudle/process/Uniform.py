@@ -27,7 +27,7 @@ def StrUniform(byUniformDataInfo, elemList: List[StrReplaceInfo]):
     # 加一个byUniformDataInfo的类型判断
     if isinstance(byUniformDataInfo, BatchInfo)==True:
         return BatchMaterialUniform(byUniformDataInfo.task_id,byUniformDataInfo.MaterialDrawing,newstr6,
-                             byUniformDataInfo.EnglishName,byUniformDataInfo.Name,byUniformDataInfo.Unit,newstr7)
+                             byUniformDataInfo.EnglishName,byUniformDataInfo.Name,byUniformDataInfo.Unit,newstr7,byUniformDataInfo.SROOID)
 
     elif isinstance(byUniformDataInfo, MaterialInfo)==True:
         return MaterialUniform(byUniformDataInfo.oid,byUniformDataInfo.Code,byUniformDataInfo.MaterialDrawing,newstr6,

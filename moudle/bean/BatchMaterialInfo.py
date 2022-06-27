@@ -18,15 +18,17 @@ class BatchInfo(Base):
     EnglishName = Column(String(255), unique=True)  # 标准英文名称
     Name = Column(String(255), unique=True)  # 标准中文名称
     Unit = Column(String(255), unique=True)  # 主英文计量单位
+    SROOID = Column(Integer,unique=True) # 物料唯一标识
 
     def keys(self):
-        return ["task_id", "MaterialDrawing", "Name", "EnglishName", "Unit"]
+        return ["task_id", "SROOID", "MaterialDrawing", "Name", "EnglishName", "Unit"]
 
     def __getitem__(self, item):
         return self.__getattribute__(item)
 
-    def __init__(self, task_id, MaterialDrawing, EnglishName, Name, Unit):
+    def __init__(self, task_id, SROOID ,MaterialDrawing, EnglishName, Name, Unit):
         self.task_id = task_id
+        self.SROOID = SROOID
         self.MaterialDrawing = MaterialDrawing
         self.EnglishName = EnglishName  # 声明需要调用的特征，可以只声明数据库中表格列的子集
         self.Name = Name

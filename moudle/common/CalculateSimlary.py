@@ -40,6 +40,6 @@ def similar(elemBUI: BatchMaterialUniform, elemMUI: MaterialUniform, similarthre
     if sim >= similarthreshold:
         return MateialBatchResult(elemBUI.task_id, elemBUI.MaterialDrawing, elemMUI.MaterialDrawing, elemMUI.oid,
                                   sim, elemMUI.Name, elemMUI.EnglishName,
-                                  elemMUI.Unit, elemMUI.Code, elemMUI.FirstClass, 1)
+                                  elemMUI.Unit, elemMUI.Code, elemMUI.FirstClass, 1,elemBUI.SROOID)
     else:
         return 0

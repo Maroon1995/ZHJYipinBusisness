@@ -20,14 +20,15 @@ class BatchMaterialUniform(Base):
     Name = Column(String(255), unique=True)  # 标准中文名称
     Unit = Column(String(255), unique=True)  # 主英文计量单位
     vector = Column(String(255), unique=True) # 向量
+    SROOID = Column(Integer,unique=True) # 物料唯一标识
 
     def keys(self):
-        return ["task_id", "MaterialDrawing", "uniformitem", "Name", "EnglishName", "Unit", "vector"]
+        return ["task_id", "MaterialDrawing", "uniformitem", "Name", "EnglishName", "Unit", "vector","SROOID"]
 
     def __getitem__(self, item):
         return self.__getattribute__(item)
 
-    def __init__(self, task_id, MaterialDrawing, uniformitem, EnglishName, Name, Unit, vector):
+    def __init__(self, task_id, MaterialDrawing, uniformitem, EnglishName, Name, Unit, vector,SROOID):
         self.task_id = task_id
         self.MaterialDrawing = MaterialDrawing
         self.uniformitem = uniformitem
@@ -35,3 +36,4 @@ class BatchMaterialUniform(Base):
         self.Name = Name
         self.Unit = Unit
         self.vector = vector
+        self.SROOID = SROOID

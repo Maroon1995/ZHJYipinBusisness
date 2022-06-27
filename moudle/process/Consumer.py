@@ -26,7 +26,7 @@ def BatchSimilarCalculate(BUIL: BatchMaterialUniform, MUIList: List, similarthre
     result.remove(0)
     if len(result) == 0:  # 如果在相似度阈值内没有找到相似物料，则相似度用1.01表示只有自己,主数据中没有找到相似物料，最后一级分类和匹配状态分别显示为"NoClass",0；否则，将找到相似或相同物料输出到结果当中。
         result.append(MateialBatchResult(BUIL.task_id,BUIL.MaterialDrawing,BUIL.MaterialDrawing,None,1.01,
-                                         BUIL.Name,BUIL.EnglishName,BUIL.Unit,None,None,0))
+                                         BUIL.Name,BUIL.EnglishName,BUIL.Unit,None,None,0,BUIL.SROOID))
     return result
 
 

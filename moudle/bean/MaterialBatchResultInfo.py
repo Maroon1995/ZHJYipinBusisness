@@ -25,17 +25,18 @@ class MateialBatchResult(Base):
     Code = Column(String(255), unique=True)  # 物料编码
     FirstClass = Column(String(255), unique=True)  # 一级分类
     MatchLogo = Column(Integer, unique=True) # 0表示主数据中未匹配到，计算了相似物料；1表示主数据中匹配到
+    SROOID = Column(Integer,unique=True) # 物料唯一标识
 
     def keys(self):
         return ["task_id", "uniformitem", "MaterialDrawing", "oid","similar", "Name", "EnglishName", "Unit", "Code","FirstClass",
-                "MatchLogo"]
+                "MatchLogo","SROOID"]
 
     def __getitem__(self, item):
         return self.__getattribute__(item)
 
 
     def __init__(self, task_id, uniformitem, MaterialDrawing, oid,similar, Name, EnglishName, Unit,Code,FirstClass,
-                 MatchLogo):
+                 MatchLogo,SROOID):
         self.task_id = task_id
         self.uniformitem = uniformitem
         self.MaterialDrawing = MaterialDrawing  # 声明需要调用的特征，可以只声明数据库中表格列的子集
@@ -47,3 +48,4 @@ class MateialBatchResult(Base):
         self.Code = Code
         self.FirstClass = FirstClass
         self.MatchLogo = MatchLogo
+        self.SROOID = SROOID
