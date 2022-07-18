@@ -22,7 +22,8 @@ basevariable:
 # '192.168.192.145'  生产环境
 database:
   mssql:
-    url: "mssql+pymssql://sa:root@1.1.4.66:1433/zhjtest01?charset=utf8"
+    url: "mssql+pymssql://sa:Bkdsj509@1.1.4.46:1433/zhjtest01?charset=utf8"
+#    url: "mssql+pymssql://sa:root@1.1.4.66:1433/zhjtest01?charset=utf8"
   mysql:
     url: "mysql+pymysql://root:123456@192.168.192.146:3306/db_onlymaterial_businessflow?charset=utf8"
   redis:
