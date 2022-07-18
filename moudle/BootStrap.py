@@ -84,7 +84,7 @@ def run(task_id: str, task_data: str):
 
 if __name__ == '__main__':
     # 任务id
-    task_id: str = "6af27c8e-6c6a-4c5e-b716-4d6d41d9a64b"
+    task_id: str = "6af27c8e-6c6a-4c5e-b716-4d6d41d9a641"
     # 任务data
     task_data = """{"data":[{"SROOID":10001,"MaterialDrawing": "02-60", "Name": "保险丝3", "EnglishName": "ПРОВОЛОКА3", "Unit": "Meter3"},{"SROOID":10002,"MaterialDrawing": "ZXR-11C", "Name": "保险丝8", "EnglishName": "ПРОВОЛОКА8", "Unit": "Meter8"},{"SROOID":10003,"MaterialDrawing": "CCCCCCC", "Name": "保险丝3", "EnglishName": "ПРОВОЛОКА3", "Unit": "Meter3"},{"SROOID":10004,"MaterialDrawing": "234356", "Name": "保险丝3", "EnglishName": "ПРОВОЛОКА3", "Unit": "Meter3"}]}"""
 
