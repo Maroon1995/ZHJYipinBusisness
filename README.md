@@ -125,3 +125,6 @@ python3.8.3 + redis3.0.4 + mssql-server-2017 + centos7.6
 
 3、在所有BootStrap任务执行前，一定要有对主数据进行一次数据清洗和向量化DataDealModel，将其结果存入数据库表`material_uniform_vector`中供BootStrap任务调用
     因为所有的BootStrap任务都是基于DataDealModel它的计算结果来执行的。
+    
+    
+4、相似度计算模型需要优化，要去process目录下对Similarity文件内的函数进行优化
