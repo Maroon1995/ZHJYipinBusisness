@@ -1,4 +1,3 @@
-
 from typing import List
 from util.LogUtil import MyLog
 from sqlalchemy import create_engine  # 引擎
@@ -50,7 +49,6 @@ class SQLUtil(object):
             encoding='utf-8',
             convert_unicode=True
         )
-
         # 创建session
         DbSession = sessionmaker(bind=self.engine)  # 会话工厂，与引擎绑定。
         self.session = DbSession()  # 实例化
@@ -127,9 +125,8 @@ class SQLUtil(object):
                     # 当上述语句出现执行错误时，需要执行回滚语句，才能继续操作
                     self.session.rollback()
                     self.mylog.error('upsertBatchRow: 数据更新failed {}'.format(e))
-                finally:
-                    # 关闭资源
-                    self.close()
+            # 关闭资源
+            self.close()
         else:
             raise Exception("方法upsertBatchRow的参数updateBatchDataInfo为空列表集合")
 
@@ -225,6 +222,59 @@ class SQLUtil(object):
         except Exception as e:
 
             self.mylog.error('dfSaveDb: 向DB保存dataframe failed {}'.format(e))
+        finally:
+            # 关闭资源
+            self.close()
+
+    def delete(self, tablename, filterCondition):
+        """
+        根据条件删除表中数据
+        :param tablename:
+        :param filterCondition:
+        :return:
+        """
+        # 开启资源
+        self.open()
+        try:
+            # 删除查询到的数据
+            self.session.query(tablename).filter(filterCondition).delete()
+            self.session.commit()
+        except Exception as e:
+            self.mylog.error('数据删除failed {}'.format(e))
+        finally:
+            # 关闭资源
+            self.close()
+
+    def execute(self, sql: str):
+        self.open()
+        try:
+            self.session.execute(sql)
+            self.session.commit()
+        except Exception as e:
+            self.mylog.error(f'{sql} failed {e}')
+        finally:
+            # 关闭资源
+            self.close()
+
+    def upsert(self, tablename, filterCondition, dataInfo):
+        """
+        根据条件删除一条数据，同时插入一条数据
+        :param tablename: 表名称对象
+        :param filterCondition: 删除条件
+        :param dataInfos: 插入单条数据
+        """
+        # 开启资源
+        self.open()
+        try:
+            # 删除查询到的数据
+            self.session.query(tablename).filter(filterCondition).delete()
+            # 插入单条数据
+            self.session.add(dataInfo)
+            self.session.commit()
+        except Exception as e:
+            # 当上述语句出现执行错误时，需要执行回滚语句，才能继续操作
+            self.session.rollback()
+            self.mylog.error(f'upsert数据更新failed: {e}')
         finally:
             # 关闭资源
             self.close()

@@ -53,7 +53,7 @@ def CacheValue(input: DataIn, SRIList: List[StrReplaceInfo], conn_db: SQLUtil, r
                                       MaterialUniform.status == 1)  # 查询MaterialUniform表中是否存在status为1的数据，若存在则更缓存redis
     if flag == 0 and redisUtil.is_existsKey("MUIListIsDigit") == True and redisUtil.is_existsKey(
             "MUIListNoDigit") == True:  # 如果，两个username如果均存在且flag=0，则从redis中获取
-        print("从redis中获取")
+        print("从redis中获取初始化数据")
         MUIListIsDigit = getIsOrNoDigitList("MUIListIsDigit", redisUtil)
         MUIListNoDigit = getIsOrNoDigitList("MUIListNoDigit", redisUtil)
 
@@ -91,7 +91,7 @@ def CacheValue(input: DataIn, SRIList: List[StrReplaceInfo], conn_db: SQLUtil, r
 
     else:  # 否则，从DB数据库中获取,并重新更新redis中的全部数据
         # 从数据库中获取数据
-        print("从DB数据库获取,并更新数据")
+        print("从DB数据库获取初始化数据")
         # 从数据库中获取数据
         MUIList: List[MaterialUniform] = input.mysqlFileData(MaterialUniform)
         # 清除一次redis

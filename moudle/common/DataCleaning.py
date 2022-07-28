@@ -1,4 +1,3 @@
-
 import json
 from typing import List, Dict
 from common.DataInOut import DataIn, DataOut
@@ -46,8 +45,9 @@ class UniformMaterial(object):
                                                                     filterCondition=MaterialInfo.MaterialDrawing == elemMI.MaterialDrawing)
             if len(queryRes) > 0:
                 for eleQR in queryRes:
-                    mbr = MateialBatchResult(elemMI.task_id,elemMI.MaterialDrawing, eleQR.MaterialDrawing, eleQR.oid,
-                                             1, eleQR.Name, eleQR.EnglishName, eleQR.Unit, eleQR.Code, eleQR.FirstClass, 1,elemMI.SROOID)
+                    mbr = MateialBatchResult(elemMI.task_id, elemMI.MaterialDrawing, eleQR.MaterialDrawing, eleQR.oid,
+                                             1, eleQR.Name, eleQR.EnglishName, eleQR.Unit, eleQR.Code, eleQR.FirstClass,
+                                             2, elemMI.SROOID)
                     query_milist.append(mbr)
 
             else:
@@ -75,7 +75,8 @@ class UniformMaterial(object):
         :param dicts: 要重新封装的字典
         :return: 返回一个BatchInfo实例
         """
-        return BatchInfo(task_id, dicts.get("SROOID") ,dicts.get("MaterialDrawing"), dicts.get("EnglishName"), dicts.get("Name"),
+        return BatchInfo(task_id, dicts.get("SROOID"), dicts.get("MaterialDrawing"), dicts.get("EnglishName"),
+                         dicts.get("Name"),
                          dicts.get("Unit"))
 
     def UniformMaterialCode(self, MIList: List):

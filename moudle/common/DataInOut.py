@@ -1,4 +1,3 @@
-
 import csv
 
 from util.LogUtil import MyLog
@@ -6,13 +5,14 @@ from util.SqlalchemyUtil import SQLUtil
 from typing import List
 from bean.BatchMaterialInfo import BatchInfo
 
+
 class DataIn(object):
     mylog = MyLog()
 
     def __init__(self, path="mysql+pymysql://root:123456@192.168.192.137:3306/db_onlymaterial_zhj"):
         self.path = path
 
-    def localFileData(self, local_path:str, tablename=BatchInfo):
+    def localFileData(self, local_path: str, tablename=BatchInfo):
         """
         读取本地
         :param dataInfo: 该参数的数据结构为4列
@@ -23,7 +23,7 @@ class DataIn(object):
         with open(local_path, 'r', encoding='utf-8') as f:
             csv_reader = csv.reader(f)
             for row in csv_reader:
-                resList.append(tablename(row[0],row[1],row[2],row[3],row[4]))
+                resList.append(tablename(row[0], row[1], row[2], row[3], row[4]))
 
         return resList
 
@@ -55,7 +55,6 @@ class DataIn(object):
 
 
 class DataOut(object):
-
     mylog = MyLog()
 
     def __init__(self, path):
@@ -68,7 +67,7 @@ class DataOut(object):
         :return:
         """
         conn = SQLUtil(path=self.path)
-        if isinstance(dataInfoS, List)==True and len(dataInfoS) > 0:  # 判断输入数据是否为批量列表，如果是批量上传，否则单条上传
+        if isinstance(dataInfoS, List) == True and len(dataInfoS) > 0:  # 判断输入数据是否为批量列表，如果是批量上传，否则单条上传
 
             res = conn.insertBatchRow(dataInfoS)
         else:
@@ -76,22 +75,3 @@ class DataOut(object):
 
         if res == 0:
             raise Exception('sqlFileOut输出数据failed!!')
-
-    def sqlFileOutUpsert(self, dataInfos):
-        """
-        将批量数据输出到mysql中,并更新数据
-        :param dataInfos:
-        :return:
-        """
-        conn = SQLUtil(path=self.path)
-        try:
-            if isinstance(dataInfos, List) and len(dataInfos) > 0:  # 判断输入数据是否为批量列表，如果是批量上传，否则单条上传
-
-                conn.upsertBatchRow(dataInfos)
-            else:
-                conn.upsertOneRow(dataInfos)
-
-        except Exception as e:
-            self.mylog.error('sqlFileOutUpsert输出数据failed: {}'.format(e))
-
-

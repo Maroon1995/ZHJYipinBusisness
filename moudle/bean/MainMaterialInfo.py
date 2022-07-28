@@ -20,14 +20,14 @@ class MaterialInfo(Base):
     Name = Column(String(255), unique=True) # 标准中文名称
     Unit = Column(String(255), unique=True) #  主英文计量单位
     FirstClass = Column(String(255), unique=True) # 一级分类
-
+    Status = Column(Integer,unique=True)
     def keys(self):
-        return ["oid","Code", "MaterialDrawing", "Name", "EnglishName", "Unit", "FirstClass"]
+        return ["oid","Code", "MaterialDrawing", "Name", "EnglishName", "Unit", "FirstClass","Status"]
 
     def __getitem__(self, item):
         return self.__getattribute__(item)
 
-    def __init__(self, oid, Code, MaterialDrawing, EnglishName, Name, Unit, FirstClass):
+    def __init__(self, oid, Code, MaterialDrawing, EnglishName, Name, Unit, FirstClass,Status):
         self.oid = oid
         self.Code = Code
         self.MaterialDrawing = MaterialDrawing
@@ -35,3 +35,4 @@ class MaterialInfo(Base):
         self.Name = Name
         self.Unit = Unit
         self.FirstClass = FirstClass
+        self.Status = Status
