@@ -1,10 +1,12 @@
 import json
 from typing import List, Dict
+
 from common.DataInOut import DataIn, DataOut
 from process.Uniform import StrUniform, multProcessUniform
 from util.LogUtil import MyLog
 from bean.BatchMaterialInfo import BatchInfo
 from bean.MainMaterialInfo import MaterialInfo
+from bean.MaterialResult import MaterialResultInfo
 from bean.MaterialBatchResultInfo import MateialBatchResult
 from bean.SpecialCharactersInfo import StrReplaceInfo
 
@@ -41,12 +43,12 @@ class UniformMaterial(object):
         for i in range(count):
             elemMI: BatchInfo = MIList[i]
             # 在主数据中查询当前数据是否存在，如果存在返回查询到的数据，并封装成MateialBatchResult返回。
-            queryRes: List[MaterialInfo] = self.input.mysqlFileData(MaterialInfo,
-                                                                    filterCondition=MaterialInfo.MaterialDrawing == elemMI.MaterialDrawing)
+            queryRes: List[MaterialResultInfo] = self.input.mysqlFileData(MaterialResultInfo,
+                                                                    filterCondition=MaterialResultInfo.ITEM_ID == elemMI.MaterialDrawing)
             if len(queryRes) > 0:
                 for eleQR in queryRes:
-                    mbr = MateialBatchResult(elemMI.task_id, elemMI.MaterialDrawing, eleQR.MaterialDrawing, eleQR.oid,
-                                             1, eleQR.Name, eleQR.EnglishName, eleQR.Unit, eleQR.Code, eleQR.FirstClass,
+                    mbr = MateialBatchResult(elemMI.task_id, elemMI.MaterialDrawing, eleQR.PEOPLE_ONLYITEM, None,
+                                             1, eleQR.PEOPLE_NAME_CH, eleQR.PEOPLE_NAME_EN, eleQR.PEOPLE_UNIT, eleQR.PDM_ID, None,
                                              2, elemMI.SROOID)
                     query_milist.append(mbr)
 

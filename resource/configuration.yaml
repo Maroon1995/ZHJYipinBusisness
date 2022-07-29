@@ -6,6 +6,7 @@ tablename:
   MaterialUniform: "material_uniform_vector"                  # 主数据向量表
   MateialBatchResult: "material_batch_result"                 # 结果存储表
   StrReplaceInfo: "SpecialCharacters"                         # 字符替换表
+  MaterialResultInfo: "MATERIAL_RESULT"
 
 # 基础变量
 basevariable:

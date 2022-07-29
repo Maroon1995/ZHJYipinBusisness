@@ -32,23 +32,26 @@ def run(task_id: str, task_data: str):
     similarthreshold: float = base_config["similarthreshold"]
     startmp_threshold: int = base_config["startmp_threshold"]
     core_process: int = base_config["core_process"]
-    # db_path = cfg["database"]["mysql"]["url"]                 # mysql 数据库的url
-    db_path = mssql_config["url"]                               # mssql 数据库的url
+    db_path = mssql_config["url"]  # 任务主机数据库地址
+    pb_path = mssql_config["p-url"]  # 保障平台主机数据库地址
     un_task_data = task_data.encode("UTF-8").decode("UTF-8")    # 请求到的任务数据
     # ----------------------------------------------------------------------------------------------
     # TODO 2- 实例化对象
     conn_db = SQLUtil(path=db_path)
     redisUtil = RedisHelper(redis_config["host"], redis_config["port"], redis_config["db"],redis_config["pwd"])
-    input = DataIn(db_path)
-    output = DataOut(db_path)
+    db_input = DataIn(db_path) # 任务主机
+    db_output = DataOut(db_path) # 任务主机
+    pb_input = DataIn(pb_path) # 保障平台
     mylog.info("---------完成了参数配置和实例化---------")
     # ------------------------------------------------------------------------------------------------
     # TODO 3- 获取数据 getData（包含了数据处理）————进行了缓存优化
     # （1）替换字符
-    SRIList = input.mysqlFileData(StrReplaceInfo)  # 替换字符
+    SRIList = pb_input.mysqlFileData(StrReplaceInfo)  # 替换字符
     # （2）批量数据
     # 从HTTP获取数据
-    BUIListIsDigit, BUIListNoDigit, query_milist = getDatafromHTTP(input=input, output=output, task_id=task_id,
+    BUIListIsDigit, BUIListNoDigit, query_milist = getDatafromHTTP(input=pb_input,
+                                                                   output=db_output,
+                                                                   task_id=task_id,
                                                                    task_data=un_task_data,
                                                                    SRIList=SRIList,
                                                                    startmp_threshold=startmp_threshold,
@@ -65,14 +68,14 @@ def run(task_id: str, task_data: str):
         try:
             if len(BUIListIsDigit) > 0 or len(BUIListNoDigit) > 0:
                 # （3）主量数据
-                MUIListIsDigit, MUIListNoDigit = CacheValue(input=input, SRIList=SRIList, conn_db=conn_db,
+                MUIListIsDigit, MUIListNoDigit = CacheValue(input=db_input, SRIList=SRIList, conn_db=conn_db,
                                                             redisUtil=redisUtil)
                 mylog.info("完成了主数据向量获取：")
                 mylog.info("MUIListIsDigit: {}; MUIListNoDigit: {}".format(len(MUIListIsDigit), len(MUIListNoDigit)))
                 if len(BUIListIsDigit) > 0:  # 数值型
-                    getResult(output, BUIListIsDigit, MUIListIsDigit, similarthreshold, core_process,startmp_threshold)
+                    getResult(db_output, BUIListIsDigit, MUIListIsDigit, similarthreshold, core_process,startmp_threshold)
                 if len(BUIListNoDigit) > 0:  # 非数值型
-                    getResult(output, BUIListNoDigit, MUIListNoDigit, similarthreshold, core_process,startmp_threshold)
+                    getResult(db_output, BUIListNoDigit, MUIListNoDigit, similarthreshold, core_process,startmp_threshold)
 
             if len(query_milist) > 0:
                 pass
@@ -86,6 +89,6 @@ if __name__ == '__main__':
     # 任务id
     task_id: str = "6af27c8e-6c6a-4c5e-b716-4d6d41d9a641"
     # 任务data
-    task_data = """{"data":[{"SROOID":10001,"MaterialDrawing": "02-60", "Name": "保险丝3", "EnglishName": "ПРОВОЛОКА3", "Unit": "Meter3"},{"SROOID":10002,"MaterialDrawing": "ZXR-11C", "Name": "保险丝8", "EnglishName": "ПРОВОЛОКА8", "Unit": "Meter8"},{"SROOID":10003,"MaterialDrawing": "CCCCCCC", "Name": "保险丝3", "EnglishName": "ПРОВОЛОКА3", "Unit": "Meter3"},{"SROOID":10004,"MaterialDrawing": "234356", "Name": "保险丝3", "EnglishName": "ПРОВОЛОКА3", "Unit": "Meter3"}]}"""
+    task_data = """{"data":[{"SROOID":10001,"MaterialDrawing": "02-60", "Name": "保险丝3", "EnglishName": "ПРОВОЛОКА3", "Unit": "Meter3"},{"SROOID":10002,"MaterialDrawing": "PF-27", "Name": "破盖枪弹", "EnglishName": "Penetrator cartridges", "Unit": "EA"},{"SROOID":10003,"MaterialDrawing": "CCCCCCC", "Name": "保险丝3", "EnglishName": "ПРОВОЛОКА3", "Unit": "Meter3"},{"SROOID":10004,"MaterialDrawing": "234356", "Name": "保险丝3", "EnglishName": "ПРОВОЛОКА3", "Unit": "EA"}]}"""
 
     res = run(task_id, task_data)
