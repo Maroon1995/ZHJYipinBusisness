@@ -27,20 +27,32 @@ python3.8.3 + redis3.0.4 + mssql-server-2017 + centos7.6
         - util
         - BootStrap.py
         - DataDealModel.py
+        - DataSynUpdate.py
         
 # 四、项目概况
 1、OnlyMaterialZHJSys主要实现两个内容：
 
-（1）数据清洗
-（2）相似度计算
-2、OnlyMaterialZHJSys存在两个主要入口类：
+（1）数据清洗 （2）相似度计算
+
+2、OnlyMaterialZHJSys存在三个主要入口类：
 
 （1）DataDealModel
+    
     主要作用：将主数据“ MainMaterialInfo ”转换成统一编码和向量表数据“ MainMaterialUniformVector ” ；只执行一次，对主数据进行初始化。
 （2）BootStrap
+ 
     主要作用：① 接收前端传回来的数据；② 将接收到的数据分割成主数据中存在查询到的结果集合query_milist和主数据中不存在caculate_simlar_milist数据集合；③ 集合caculate_simlar_milist数据处理后同 MainMaterialUniformVector
     计算相似度，并返回相似结果。
+ (3)DataSynUpdate
+    
+    主要作用：用来同步保障平台主数据ProductData的数据变更、新增、删除数据到初始化表数据中MainMaterialUniformVector
+ (4)三个主类的执行顺序
+ 
+    step-1 DataDealModel：现要对保障平台主数据进行初始化MainMaterialUniformVector（会清除mssql和redis中的初始化表数据），即生成图号统一处理后的编码和向量。
+    step-2 BootStrap: 通过http请求执行相似度计算和图号匹配任务，将计算结果写入结果表中。
+    step-3 DataSynUpdate：当主数据中有数据发生变更时，通过接口的方式触发该数据同步程序的执行。
 3、参数
+
 3.1 BootStrap.run(task_id: str, task_data: str)
 
 (1) 默认参数
@@ -93,18 +105,20 @@ python3.8.3 + redis3.0.4 + mssql-server-2017 + centos7.6
     # tablename: BatchInfo = BatchInfo # 表名称
     # limitnum = base_config["limitnum"]
 
- BUIListIsDigit, BUIListNoDigit, query_milist = getDatafromDB(input=input, tabelname=tablename,
+    BUIListIsDigit, BUIListNoDigit, query_milist = getDatafromDB(input=input, tabelname=tablename,
                                                                  SRIList=SRIList, filterCondition=0,
                                                                  startmp_threshold=startmp_threshold,
                                                                  core_process=core_process, limitnum=limitnum)
  (3) http请求来的jsonstring数据 - getDatafromHTTP
- BUIListIsDigit, BUIListNoDigit, query_milist = getDatafromHTTP(input=input, output=output, task_id=task_id,
+ 
+    BUIListIsDigit, BUIListNoDigit, query_milist = getDatafromHTTP(input=input, output=output, task_id=task_id,
                                                                    task_data=un_task_data,
                                                                    SRIList=SRIList,
                                                                    startmp_threshold=startmp_threshold,
                                                                    core_process=core_process)
 # 五、注意事项
 1、BatchSimilarCalculate()
+
 在计算相似度的时，计算结果分为两种情况：
 
 （1）找到相同或者相似的物料：`MatchLogo`: `0`表示没用匹配到，`1`表示匹配到了(包含匹配到的相同和相似的字符串)
